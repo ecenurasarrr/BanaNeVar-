@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="tickets-header">
+    <h2>🎟️ Bilet Cüzdanım</h2>
+    <p>Satın aldığınız biletleri burada görüntüleyebilirsiniz.</p>
+</div>
+
+{% if tickets|length == 0 %}
+<div class="glass-panel empty-tickets">
+    <p>Henüz hiç biletiniz yok.</p>
+    <a href="/" class="btn">Etkinlikleri Keşfet</a>
+</div>
+{% else %}
+<div class="tickets-grid">
+    {% for t in tickets %}
+    <div class="ticket-card">
+        <div class="ticket-left">
+            <div class="ticket-owner">{{ t.owner_name }}</div>
+            <h3 class="ticket-event">{{ t.event_name }}</h3>
+            <div class="ticket-count">{{ t.ticket_count }} Adet Bilet</div>
+            <div class="ticket-date">Tarih: {{ t.purchase_date.split('.')[0] }}</div>
+        </div>
+        <div class="ticket-right">
+            <img src="{{ url_for('ticket_qr', ticket_id=t.id) }}" alt="QR Kod" class="qr-img">
+            <div class="ticket-id">#BNV-{{ t.id }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

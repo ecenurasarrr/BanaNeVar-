@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BanaNeVar - Mersin Etkinlik Asistanı</title>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container animate-fade-in">
+        <nav class="navbar">
+            <a href="/" class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                BanaNeVar
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Tüm Etkinlikler</a>
+                <a href="/tickets" class="nav-link">🎫 Biletlerim</a>
+                {% if session.get('user_id') %}
+                    <span class="nav-link" style="color: var(--primary); font-weight: 600;">👋 Selam, {{ session.username }}</span>
+                    <a href="/logout" class="nav-link nav-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">Çıkış Yap</a>
+                {% else %}
+                    <a href="/login" class="nav-link">Giriş Yap</a>
+                    <a href="/register" class="nav-link nav-btn">Kayıt Ol</a>
+                {% endif %}
+            </div>
+        </nav>
+        
+        <header class="header">
+            <h1 class="title">Şehrini Keşfet!</h1>
+            <p class="subtitle">Yapay zeka asistanın senin için Mersin'in en iyi etkinliklerini planlıyor.</p>
+        </header>
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function openBiletModal(eventName) {
+            document.getElementById('modalEventName').innerText = eventName + " Bileti";
+            document.getElementById('hiddenEventName').value = eventName;
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('biletModal').classList.add('active');
+        }
+
+        function closeBiletModal() {
+            document.getElementById('biletModal').classList.remove('active');
+        }
+
+        function goToPayment() {
+            const ownerName = document.getElementById('owner_name').value;
+            const ticketCount = document.getElementById('ticket_count').value;
+            
+            if(!ownerName) {
+                alert("Lütfen adınızı giriniz.");
+                return;
+            }
+
+            // Simüle edilmiş fiyat (50-250 TL arası)
+            const pricePerTicket = 150; 
+            const total = ticketCount * pricePerTicket;
+
+            document.getElementById('summaryEvent').innerText = document.getElementById('hiddenEventName').value;
+            document.getElementById('summaryCount').innerText = ticketCount;
+            document.getElementById('summaryTotal').innerText = total;
+
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+        }
+
+        function backToDetails() {
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('step2').classList.add('hidden');
+        }
+
+        async function processPayment(e) {
+            const btn = document.getElementById('payBtn');
+            const cardNumber = document.getElementById('card_number').value;
+            const expiry = document.getElementById('expiry').value;
+            const cvv = document.getElementById('cvv').value;
+
+            if(cardNumber.length < 16 || expiry.length < 5 || cvv.length < 3) {
+                alert("Lütfen geçerli ödeme bilgileri giriniz.");
+                return;
+            }
+
+            btn.innerText = "Ödeme Alınıyor...";
+            btn.disabled = true;
+
+            const ownerName = document.getElementById('owner_name').value;
+            const ticketCount = document.getElementById('ticket_count').value;
+            const eventName = document.getElementById('hiddenEventName').value;
+
+            try {
+                const res = await fetch('/buy_ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        owner_name: ownerName,
+                        event_name: eventName,
+                        ticket_count: ticketCount
+                    })
+                });
+                
+                if (res.status === 401) {
+                    alert("Bilet almak için lütfen önce giriş yapın.");
+                    window.location.href = "/login";
+                    return;
+                }
+                
+                const data = await res.json();
+                if(data.success) {
+                    alert("Ödeme Başarılı! Biletiniz başarıyla oluşturuldu. QR kodunuz Biletlerim sekmesine eklendi.");
+                    closeBiletModal();
+                    // Reset fields
+                    document.getElementById('owner_name').value = '';
+                    document.getElementById('ticket_count').value = '1';
+                    document.getElementById('card_number').value = '';
+                    document.getElementById('expiry').value = '';
+                    document.getElementById('cvv').value = '';
+                } else {
+                    alert("Bir hata oluştu.");
+                }
+            } catch(err) {
+                alert("Sunucuyla bağlantı kurulamadı.");
+            } finally {
+                btn.innerText = "Ödemeyi Yap";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

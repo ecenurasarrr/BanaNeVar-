@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+
+# Database
+*.db
+bananevar.db
+
+# IDEs
+.vscode/
+.idea/
+.trae/
+
+# OS
+.DS_Store
+Thumbs.db

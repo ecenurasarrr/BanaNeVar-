@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="glass-panel" style="max-width: 400px; margin: 4rem auto;">
+    <h2 class="title" style="font-size: 2rem; text-align: center; margin-bottom: 2rem;">Giriş Yap</h2>
+    
+    {% if error %}
+    <div style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; font-size: 0.9rem; border: 1px solid rgba(239, 68, 68, 0.2);">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        <div class="form-group">
+            <label class="form-label">E-posta</label>
+            <input type="email" name="email" required class="form-input" placeholder="ornek@mail.com">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Şifre</label>
+            <input type="password" name="password" required class="form-input" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">Giriş Yap</button>
+    </form>
+    
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+        Hesabın yok mu? <a href="/register" style="color: var(--primary); font-weight: 600; text-decoration: none;">Kayıt Ol</a>
+    </div>
+</div>
+{% endblock %}
